@@ -20,25 +20,50 @@ JWT_SECRET = process.env.JWT_SECRET;
 
 // Signup Route
 router.post('/signup', async (req, res) => {
-    const { email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
     try {
+        const { email, password } = req.body;
+        const normalizedEmail = (email || '').trim().toLowerCase();
+
+        if (!normalizedEmail || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(normalizedEmail)) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+        }
+
+        const existingUser = await User.findOne({ email: normalizedEmail });
+        if (existingUser) {
+            return res.status(409).json({ message: 'User already exists' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
         const verificationToken = crypto.randomBytes(32).toString('hex');
-        const user = new User({ email, password: hashedPassword, verificationToken, });
+
+        const user = new User({
+            email: normalizedEmail,
+            password: hashedPassword,
+            verificationToken,
+            isEmailVerified: false,
+        });
         await user.save();
 
-        // Send verification email
-        const verificationUrl = `http://localhost:5000/users/verify-email?token=${verificationToken}`;
-        await transporter.sendMail({
-            to: email,
-            subject: 'Verify Your Email',
-            html: `<p>Click <a href="${verificationUrl}">here</a> to verify your email.</p>`,
+        return res.status(201).json({
+            message: 'User created successfully.',
+            requiresEmailVerification: false,
         });
-
-        res.status(201).send('User created. Please check your email to verify your account.');
     } catch (error) {
-        res.status(400).send('User already exists');
+        if (error.code === 11000) {
+            return res.status(409).json({ message: 'User already exists' });
+        }
+
+        console.error('Signup error:', error);
+        return res.status(500).json({ message: 'Failed to create account' });
     }
 });
 
@@ -66,15 +91,16 @@ router.get('/verify-email', async (req, res) => {
 
 // Login Route
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
+  const normalizedEmail = (email || '').trim().toLowerCase();
     
-    const user = await User.findOne({ email });
+  const user = await User.findOne({ email: normalizedEmail });
     if (!user) return res.status(400).send('User not found');
 
     // Check if email is verified
-    if (!user.isEmailVerified) {
-        return res.status(403).send('Please verify your email before logging in');
-    }
+    // if (!user.isEmailVerified) {
+    //     return res.status(403).send('Please verify your email before logging in');
+    // }
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).send('Invalid credentials');

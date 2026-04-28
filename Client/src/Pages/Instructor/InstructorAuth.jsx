@@ -25,11 +25,12 @@ export default function InstructorAuth({ setInstructorToken }) {
             setInstructorToken(response.data.token);
             navigate('/instructor-dashboard'); // Redirect to instructor dashboard
         } catch (error) {
-            if (error.response && error.response.data === 'Please verify your email before logging in') {
-                alert('Please verify your email before logging in.');
+            if (error.response && error.response.data) {
+                alert(typeof error.response.data === 'string' ? error.response.data : 'Error logging in');
             } else {
-                console.error('Error logging in', error);
+                alert('Error logging in');
             }
+            console.error('Error logging in', error);
         }
     };
 

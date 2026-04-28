@@ -4,25 +4,28 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Updated to useNavigate
 
 export default function Signup() {
-    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate(); // Updated to useNavigate
 
     const handleSignup = async (e) => {
         e.preventDefault();
+        setErrorMessage('');
         try {
             if (password!== confirmPassword) {
-                alert('Passwords do not match');
+                setErrorMessage('Passwords do not match');
                 return;
             }
             const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/users/signup`, {email, password });
 
-            alert('Account created successfully! Please log in to continue.');
+            alert(response?.data?.message || 'Account created successfully! Please log in to continue.');
             navigate('/login');
         } catch (error) {
             console.error('Error signing up', error);
+            const message = error?.response?.data?.message || error?.response?.data || 'Signup failed. Please try again.';
+            setErrorMessage(message);
         }
     };
 
@@ -34,6 +37,9 @@ export default function Signup() {
                         <Card.Body>
                             <h2 className="text-center mb-4">Sign Up</h2>
                             <Form onSubmit={handleSignup}>
+                                {errorMessage && (
+                                    <div className="text-danger mb-2">{errorMessage}</div>
+                                )}
                                 
                                 <Form.Group id="email">
                                     <Form.Label>Email</Form.Label>

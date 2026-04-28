@@ -25,15 +25,7 @@ router.post('/signup', async (req, res) => {
         const instructor = new Instructor({ email, password: hashedPassword, verificationToken, });
         await instructor.save();
 
-        // Send verification email
-        const verificationUrl = `http://localhost:5000/instructors/verify-email-instructor?token=${verificationToken}`;
-        await transporter.sendMail({
-            to: email,
-            subject: 'Verify Your Email',
-            html: `<p>Click <a href="${verificationUrl}">here</a> to verify your email.</p>`,
-        });
-
-        res.status(201).send('Instructor created. Please check your email to verify your account.');
+        res.status(201).send('Instructor created successfully.');
     } catch (error) {
         res.status(400).send('Instructor already exists');
     }
@@ -69,9 +61,9 @@ router.post('/login', async (req, res) => {
     if (!instructor) return res.status(400).send('Instructor not found');
 
     // Check if email is verified
-    if (!instructor.isEmailVerified) {
-        return res.status(403).send('Please verify your email before logging in');
-    }
+    // if (!instructor.isEmailVerified) {
+    //     return res.status(403).send('Please verify your email before logging in');
+    // }
     // Compare password
     const isMatch = await bcrypt.compare(password, instructor.password);
     if (!isMatch) return res.status(400).send('Invalid credentials');

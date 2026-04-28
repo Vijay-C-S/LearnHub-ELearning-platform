@@ -19,11 +19,12 @@ export default function Login({ setStudentToken }) {
             setStudentToken(token);
             navigate('/dashboard'); // Updated to navigate after login
         } catch (error) {
-            if (error.response && error.response.data === 'Please verify your email before logging in') {
-                alert('Please verify your email before logging in.');
+            if (error.response && error.response.data) {
+                alert(typeof error.response.data === 'string' ? error.response.data : 'Error logging in');
             } else {
-                console.error('Error logging in', error);
+                alert('Error logging in');
             }
+            console.error('Error logging in', error);
         }
     };
 
