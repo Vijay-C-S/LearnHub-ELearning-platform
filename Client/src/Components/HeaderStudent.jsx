@@ -1,57 +1,83 @@
-import React, { useState, useEffect } from 'react';
-import { FaSearch, FaBook, FaUser, FaSignOutAlt, FaBars } from 'react-icons/fa';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaSearch, FaBook, FaUser, FaSignOutAlt, FaTimes, FaBars } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { Dropdown } from 'react-bootstrap';
 import axios from 'axios';
+import './HeaderStudent.css';
 
-export default function HeaderStudent({ onLogout, userEmail }) {
+export default function HeaderStudent({ onLogout }) {
     const navigate = useNavigate();
     const [query, setQuery] = useState('');
     const [courses, setCourses] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [purchasedCourses, setPurchasedCourses] = useState([]);
-    const [showDropdown, setShowDropdown] = useState(false);
-    const userEmail123 = localStorage.getItem('userEmail');
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const [userName, setUserName] = useState('');
+    const searchRef = useRef(null);
+    const userEmail = localStorage.getItem('userEmail');
 
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/users/courses`, {
-                    headers: {
-                        'x-auth-token': localStorage.getItem('studentToken')
-                      }
-                });
-                setCourses(response.data);
-            } catch (error) {
-                console.error('Error fetching courses:', error);
+                const res = await axios.get(
+                    `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/users/courses`,
+                    { headers: { 'x-auth-token': localStorage.getItem('studentToken') } }
+                );
+                setCourses(res.data);
+            } catch (err) {
+                console.error('Error fetching courses:', err);
             }
         };
 
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/users/${userEmail123}`, {
-                    headers: {
-                        'x-auth-token': localStorage.getItem('studentToken')
-                      }
-                });
-                setPurchasedCourses(response.data.purchasedCourses);
-            } catch (error) {
-                console.error('Error fetching user data:', error);
+                const res = await axios.get(
+                    `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/users/${userEmail}`,
+                    { headers: { 'x-auth-token': localStorage.getItem('studentToken') } }
+                );
+                setPurchasedCourses(res.data.purchasedCourses || []);
+            } catch (err) {
+                console.error('Error fetching user data:', err);
+            }
+        };
+
+        const fetchUserName = async () => {
+            try {
+                const res = await axios.get(
+                    `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/users/name`,
+                    {
+                        params: { email: userEmail },
+                        headers: { 'x-auth-token': localStorage.getItem('studentToken') }
+                    }
+                );
+                setUserName(res.data.name || '');
+            } catch (err) {
+                console.error('Error fetching user name:', err);
             }
         };
 
         fetchCourses();
         fetchUserData();
+        fetchUserName();
     }, [userEmail]);
 
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handler = (e) => {
+            if (searchRef.current && !searchRef.current.contains(e.target)) {
+                setSearchResults([]);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
     const handleSearchChange = (e) => {
-        setQuery(e.target.value);
-        
-        if (e.target.value.length > 1) {
-            const filteredResults = courses.filter(course =>
-                course.title.toLowerCase().includes(e.target.value.toLowerCase())
+        const val = e.target.value;
+        setQuery(val);
+        if (val.length > 1) {
+            setSearchResults(
+                courses.filter(c => c.title.toLowerCase().includes(val.toLowerCase())).slice(0, 6)
             );
-            setSearchResults(filteredResults);
         } else {
             setSearchResults([]);
         }
@@ -59,78 +85,107 @@ export default function HeaderStudent({ onLogout, userEmail }) {
 
     const handleCourseClick = (course) => {
         const isPurchased = purchasedCourses.includes(course._id);
-        const redirectPath = isPurchased
-            ? `/my-courses/${course._id}`
-            : `/course/${course._id}`;
-        
-        navigate(redirectPath);
+        navigate(isPurchased ? `/my-courses/${course._id}` : `/course/${course._id}`);
+        setQuery('');
+        setSearchResults([]);
+    };
+
+    const getInitials = (name, email) => {
+        if (name) return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        if (email) return email[0].toUpperCase();
+        return 'U';
     };
 
     return (
-        <header className="sticky-top bg-white border-bottom">
-            <nav className="navbar navbar-expand-lg navbar-light py-2 px-3">
-                <a className="navbar-brand d-flex align-items-center" href="/">
-                    <FaBook className="me-2" />
-                    <span className="fw-bold">LearnHub</span>
-                </a>
-                
-                <div className="ms-auto d-flex align-items-center">
-                    <div className="search-wrapper d-none d-lg-flex flex-grow-1 mx-lg-4 my-2 my-lg-0" style={{ maxWidth: '400px', position: 'relative' }}>
-                        <div className="input-group w-100">
-                            <span className="input-group-text bg-white border-end-0">
-                                <FaSearch className="text-muted" />
-                            </span>
-                            <input
-                                className="form-control border-start-0"
-                                type="search"
-                                placeholder="Search for courses..."
-                                aria-label="Search"
-                                value={query}
-                                onChange={handleSearchChange}
-                            />
-                            {query && searchResults.length > 0 && (
-                                <div className="dropdown-menu show w-100" style={{ position: 'absolute', top: '100%', zIndex: 1000 }}>
-                                    {searchResults.map((course) => (
-                                        <button
-                                            key={course._id}
-                                            className="dropdown-item text-truncate"
-                                            onClick={() => handleCourseClick(course)}
-                                        >
-                                            {course.title}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+        <header className="hs-header">
+            <div className="hs-inner">
+                {/* Logo — navigates to /dashboard, keeps session alive */}
+                <div className="hs-logo" onClick={() => navigate('/dashboard')} role="button" tabIndex={0}>
+                    <div className="hs-logo-icon">
+                        <FaBook size={15} />
                     </div>
-
-                    {/* Burger Menu with Custom Dropdown */}
-                    <div className="d-lg-none position-relative">
-                        <button className="btn p-0 m-0 border-0" onClick={() => setShowDropdown(!showDropdown)}>
-                            <FaBars size={24} />
-                        </button>
-
-                        <Dropdown.Menu show={showDropdown} align="end" className="position-absolute end-0 mt-2">
-                            <Dropdown.Item onClick={() => navigate('/student-profile')}>
-                                <FaUser className="me-2" /> Profile
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={onLogout}>
-                                <FaSignOutAlt className="me-2" /> Logout
-                            </Dropdown.Item>
-                        </Dropdown.Menu>
-                    </div>
-
-                    {/* Profile and Logout Buttons for large screens */}
-                    <div className="d-none d-lg-flex align-items-center">
-                        <button className="btn btn-outline-primary me-3" onClick={() => navigate('/student-profile')}>
-                            <FaUser className="me-1" /> Profile
-                        </button>
-                        <button className="btn btn-outline-danger" onClick={onLogout}>
-                            <FaSignOutAlt className="me-1" /> Logout
-                        </button>
-                    </div>
+                    <span className="hs-logo-text">LearnHub</span>
                 </div>
-            </nav>
+
+                {/* Search bar */}
+                <div className="hs-search-wrap" ref={searchRef}>
+                    <div className="hs-search-box">
+                        <FaSearch className="hs-search-icon" size={13} />
+                        <input
+                            className="hs-search-input"
+                            type="text"
+                            placeholder="Search courses..."
+                            value={query}
+                            onChange={handleSearchChange}
+                        />
+                        {query && (
+                            <button
+                                className="hs-search-clear"
+                                onClick={() => { setQuery(''); setSearchResults([]); }}
+                                aria-label="Clear search"
+                            >
+                                <FaTimes size={11} />
+                            </button>
+                        )}
+                    </div>
+
+                    {searchResults.length > 0 && (
+                        <div className="hs-search-dropdown">
+                            {searchResults.map((course) => (
+                                <button
+                                    key={course._id}
+                                    className="hs-search-item"
+                                    onClick={() => handleCourseClick(course)}
+                                >
+                                    <FaBook size={11} className="hs-search-item-icon" />
+                                    <span>{course.title}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Desktop actions */}
+                <div className="hs-actions">
+                    <button
+                        className="hs-btn-profile"
+                        onClick={() => navigate('/student-profile')}
+                    >
+                        <div className="hs-avatar">
+                            {getInitials(userName, userEmail)}
+                        </div>
+                        <span className="hs-btn-label">Profile</span>
+                    </button>
+                    <button className="hs-btn-logout" onClick={onLogout}>
+                        <FaSignOutAlt size={14} />
+                        <span className="hs-btn-label">Logout</span>
+                    </button>
+                </div>
+
+                {/* Mobile hamburger */}
+                <button
+                    className="hs-mobile-toggle"
+                    onClick={() => setShowMobileMenu(!showMobileMenu)}
+                    aria-label="Toggle menu"
+                >
+                    {showMobileMenu ? <FaTimes size={18} /> : <FaBars size={18} />}
+                </button>
+            </div>
+
+            {/* Mobile menu */}
+            {showMobileMenu && (
+                <div className="hs-mobile-menu">
+                    <button
+                        className="hs-mobile-item"
+                        onClick={() => { navigate('/student-profile'); setShowMobileMenu(false); }}
+                    >
+                        <FaUser size={14} /> Profile
+                    </button>
+                    <button className="hs-mobile-item hs-mobile-logout" onClick={onLogout}>
+                        <FaSignOutAlt size={14} /> Logout
+                    </button>
+                </div>
+            )}
         </header>
     );
 }

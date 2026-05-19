@@ -167,7 +167,7 @@ const EditCourse = ({ onLogout }) => {
       <div
         className="flex-grow-1 p-5"
         style={{
-          marginLeft: isSidebarOpen ? '250px' : '70px', // Adjust dynamically based on sidebar width
+          marginLeft: isSidebarOpen ? '260px' : '72px',
           transition: 'margin-left 0.3s',
         }}
       >

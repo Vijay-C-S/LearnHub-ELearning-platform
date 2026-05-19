@@ -1,0 +1,79 @@
+/* Client/src/Components/FeatureBox.css */
+
+.feature-box {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    border-top: 3px solid var(--color-primary-light);
+}
+
+.feature-box:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-8px);
+    border-top-color: var(--color-primary);
+}
+
+.feature-box.gradient {
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, rgba(230, 245, 255, 0.5) 100%);
+    border-top-color: var(--color-primary);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    transition: all var(--transition-normal);
+}
+
+.feature-box:hover .feature-icon {
+    transform: scale(1.15) rotate(-5deg);
+    color: var(--color-primary-dark);
+}
+
+.feature-title {
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.feature-description {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .feature-box {
+        padding: 1.5rem;
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+    }
+
+    .feature-title {
+        font-size: 1.1rem;
+    }
+
+    .feature-description {
+        font-size: 0.9rem;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .feature-box,
+    .feature-icon {
+        transition: none;
+    }
+
+    .feature-box:hover .feature-icon {
+        transform: none;
+    }
+}

@@ -1,0 +1,8 @@
+{"timestamp":"2026-05-17T09:28:07.987Z","level":"ERROR","message":"Missing required environment variables","error":{"missing":["FRONTEND_URL","NODE_ENV"]}}
+{"timestamp":"2026-05-17T09:31:13.244Z","level":"ERROR","message":"Missing required environment variables","error":{"missing":["FRONTEND_URL","NODE_ENV"]}}
+{"timestamp":"2026-05-17T09:31:22.636Z","level":"ERROR","message":"Missing required environment variables","error":{"missing":["FRONTEND_URL","NODE_ENV"]}}
+{"timestamp":"2026-05-17T09:34:50.058Z","level":"ERROR","message":"Missing required environment variables","error":{"missing":["FRONTEND_URL","NODE_ENV"]}}
+{"timestamp":"2026-05-17T09:42:50.864Z","level":"ERROR","message":"Missing required environment variables","error":{"missing":["FRONTEND_URL","NODE_ENV"]}}
+{"timestamp":"2026-05-17T09:44:16.417Z","level":"ERROR","message":"Missing required environment variables","error":{"missing":["FRONTEND_URL","NODE_ENV"]}}
+{"timestamp":"2026-05-17T09:44:33.873Z","level":"ERROR","message":"Missing required environment variables","error":{"missing":["FRONTEND_URL","NODE_ENV"]}}
+{"timestamp":"2026-05-17T09:48:54.721Z","level":"ERROR","message":"Uncaught Exception:","error":"listen EADDRINUSE: address already in use :::5000"}

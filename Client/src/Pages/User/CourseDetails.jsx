@@ -193,7 +193,7 @@ export default function CourseDetails( {onLogout} ) {
         {/* Footer */}
         <footer className="bg-light mt-5 py-4">
           <div className="container text-center">
-            <p className="text-muted" style={{ fontSize: '0.9rem' }}>&copy; 2024 Your Course Platform. All rights reserved.</p>
+            <p className="text-muted" style={{ fontSize: '0.9rem' }}>&copy; 2026 Your Course Platform. All rights reserved.</p>
           </div>
         </footer>
       </div>

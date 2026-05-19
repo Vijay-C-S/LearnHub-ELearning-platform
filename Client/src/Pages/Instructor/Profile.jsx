@@ -85,13 +85,13 @@ const Profile = ({ onLogout }) => {
   };
 
   return (
-    <div className="d-flex min-vh-100 bg-light">
+    <div className="d-flex min-vh-100" style={{ background: '#F8FAFC' }}>
       <Sidebar onLogout={onLogout} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
       <div
         className="flex-grow-1 p-5"
         style={{
-          marginLeft: isSidebarOpen ? '250px' : '70px',
+          marginLeft: isSidebarOpen ? '260px' : '72px',
           transition: 'margin-left 0.3s',
         }}
       >

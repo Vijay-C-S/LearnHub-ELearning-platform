@@ -8,25 +8,25 @@ function Blog() {
     {
       title: "5 Tips for Successful Online Teaching",
       author: "John Doe",
-      date: "November 1, 2024",
+      date: "November 1, 2026",
       summary: "Discover key strategies for making online teaching more effective, engaging, and enjoyable for your students.",
     },
     {
       title: "How to Create Engaging Course Content",
       author: "Jane Smith",
-      date: "October 28, 2024",
+      date: "October 28, 2026",
       summary: "Learn tips and tricks for creating content that keeps your students motivated and interested.",
     },
     {
       title: "Best Practices for Assessing Student Progress",
       author: "Emily Brown",
-      date: "October 20, 2024",
+      date: "October 20, 2026",
       summary: "Explore various assessment techniques to gauge student understanding and promote continuous improvement.",
     },
     {
       title: "Using Technology to Enhance Learning",
       author: "Michael Lee",
-      date: "October 15, 2024",
+      date: "October 15, 2026",
       summary: "Understand how you can leverage modern tools and platforms to create a dynamic online learning experience.",
     }
   ];

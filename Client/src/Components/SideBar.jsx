@@ -1,101 +1,85 @@
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaBars, FaBook, FaPlusCircle, FaDollarSign, FaUsers, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
+import './SideBar.css';
+
+const NAV_ITEMS = [
+    { href: '/instructor-dashboard', icon: FaBook,       label: 'My Courses'  },
+    { href: '/create-course',        icon: FaPlusCircle, label: 'Create Course' },
+    { href: '/earnings',             icon: FaDollarSign, label: 'Earnings'     },
+    { href: '/enrolled-students',    icon: FaUsers,      label: 'Students'     },
+];
 
 const Sidebar = ({ onLogout, isSidebarOpen, toggleSidebar }) => {
-  return (
-    <div
-      className={`sidebar bg-primary text-white d-flex flex-column ${isSidebarOpen ? '' : 'collapsed'}`}
-      style={{
-        position: 'fixed',
-        height: '100vh',
-        width: isSidebarOpen ? '250px' : '70px',
-        transition: 'width 0.3s',
-        overflow: 'hidden', // Ensures no scrollbar appears in the sidebar
-        boxSizing: 'border-box', // Ensures padding and border are included in width/height
-      }}
-    >
-      <div className="d-flex align-items-center mt-3 px-3">
-        <button className="btn text-white me-2" onClick={toggleSidebar}>
-          <FaBars size={24} />
-        </button>
-        <h2 className="text-white mb-0" style={{ display: isSidebarOpen ? 'block' : 'none' }}>Dashboard</h2>
-      </div>
+    const { pathname } = useLocation();
+    const expanded = isSidebarOpen;
 
-      <ul className="nav flex-column px-3 mt-4" style={{ flexGrow: 1 }}>
-        <li className="nav-item mb-3">
-          <a href="/instructor-dashboard" className="nav-link text-white d-flex align-items-center">
-            <FaBook className="me-2" />
-            {isSidebarOpen && 'My Courses'}
-          </a>
-        </li>
-        <li className="nav-item mb-3">
-          <a href="/create-course" className="nav-link text-white d-flex align-items-center">
-            <FaPlusCircle className="me-2" />
-            {isSidebarOpen && 'Create a Course'}
-          </a>
-        </li>
-        <li className="nav-item mb-3">
-          <a href="/earnings" className="nav-link text-white d-flex align-items-center">
-            <FaDollarSign className="me-2" />
-            {isSidebarOpen && 'Earnings'}
-          </a>
-        </li>
-        <li className="nav-item mb-3">
-          <a href="/enrolled-students" className="nav-link text-white d-flex align-items-center">
-            <FaUsers className="me-2" />
-            {isSidebarOpen && 'Enrolled Students'}
-          </a>
-        </li>
-      </ul>
+    return (
+        <div className={`lh-sidebar ${expanded ? 'expanded' : 'collapsed'}`}>
 
-      <div
-        className={`mt-auto mb-4 px-3 d-flex ${isSidebarOpen ? 'flex-row' : 'flex-column'} align-items-center`}
-        style={{
-          justifyContent: 'flex-start',
-          gap: '10px', // Gives some space between the buttons
-        }}
-      >
-        <a
-          href="/profile"
-          className="btn btn-outline-light d-flex align-items-center w-100"
-          style={{
-            height: '40px', // Set a consistent height for buttons
-            justifyContent: 'flex-start',
-            overflow: 'hidden', // Prevents overflow
-          }}
-        >
-          {isSidebarOpen ? (
-            <>
-              <FaUser className="me-2" />
-              Profile
-            </>
-          ) : (
-            <FaUser />
-          )}
-        </a>
+            {/* ── Header ─────────────────────────────────── */}
+            <div className="lhs-header">
+                <button
+                    className="lhs-toggle"
+                    onClick={toggleSidebar}
+                    aria-label={expanded ? 'Collapse sidebar' : 'Expand sidebar'}
+                >
+                    <FaBars size={15} />
+                </button>
 
-        <button
-          className="btn btn-outline-light d-flex align-items-center w-100"
-          onClick={onLogout}
-          style={{
-            height: '40px', // Ensure consistent height for both buttons
-            justifyContent: 'flex-start',
-            overflow: 'hidden', // Prevents overflow
-          }}
-        >
-          {isSidebarOpen ? (
-            <>
-              <FaSignOutAlt className="me-2" />
-              Logout
-            </>
-          ) : (
-            <FaSignOutAlt />
-          )}
-        </button>
-      </div>
-    </div>
-  );
+                {expanded && (
+                    <div className="lhs-brand">
+                        <div className="lhs-brand-icon">
+                            <FaBook size={14} />
+                        </div>
+                        <span className="lhs-brand-name">LearnHub</span>
+                    </div>
+                )}
+            </div>
+
+            {/* ── Navigation ─────────────────────────────── */}
+            <nav className="lhs-nav">
+                {expanded && <div className="lhs-section-label">Navigation</div>}
+
+                {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
+                    const active = pathname === href;
+                    return (
+                        <a
+                            key={href}
+                            href={href}
+                            className={`lhs-nav-item${active ? ' active' : ''}`}
+                            title={!expanded ? label : undefined}
+                            aria-current={active ? 'page' : undefined}
+                        >
+                            <span className="lhs-nav-icon"><Icon size={16} /></span>
+                            {expanded && <span className="lhs-nav-label">{label}</span>}
+                        </a>
+                    );
+                })}
+            </nav>
+
+            {/* ── Footer ─────────────────────────────────── */}
+            <div className="lhs-footer">
+                <a
+                    href="/profile"
+                    className={`lhs-footer-item${pathname === '/profile' ? ' active' : ''}`}
+                    title={!expanded ? 'Profile' : undefined}
+                >
+                    <span className="lhs-nav-icon"><FaUser size={16} /></span>
+                    {expanded && <span className="lhs-nav-label">Profile</span>}
+                </a>
+
+                <button
+                    className="lhs-footer-item lhs-logout"
+                    onClick={onLogout}
+                    title={!expanded ? 'Logout' : undefined}
+                >
+                    <span className="lhs-nav-icon"><FaSignOutAlt size={16} /></span>
+                    {expanded && <span className="lhs-nav-label">Logout</span>}
+                </button>
+            </div>
+        </div>
+    );
 };
 
 export default Sidebar;
